@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VenePay - Procesador de Pago Móvil</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(120, 219, 226, 0.3) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(120deg); }
+            66% { transform: translateY(10px) rotate(240deg); }
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(120, 219, 226, 0.1), transparent);
+            animation: rotate 10s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5em;
+            text-align: center;
+            background: linear-gradient(45deg, #00d4ff, #ff0080, #00ff80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2); }
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        label {
+            font-weight: 600;
+            color: #b0b0b0;
+            margin-bottom: 5px;
+            display: block;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-size: 1em;
+            font-family: 'Rajdhani', sans-serif;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        input::placeholder {
+            color: #888;
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .success {
+            background: rgba(0, 255, 128, 0.1);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            color: #00ff80;
+        }
+
+        .error {
+            background: rgba(255, 0, 128, 0.1);
+            border: 1px solid rgba(255, 0, 128, 0.3);
+            color: #ff0080;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .links a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: #0099cc;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VenePay</h1>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p style="color: #00ff80; font-size: 1.2em;">Bienvenido, {{ session.user }}!</p>
+            <p style="color: #00ff80; font-size: 1.2em;">Tu Balance: Bs. {{ "%.2f"|format(user_balance) }}</p>
+        </div>
+        <form action="/procesar" method="post">
+            <div class="form-group">
+                <label for="monto_ves">Monto a pagar (VES)</label>
+                <input type="number" id="monto_ves" name="monto_ves" step="0.01" required placeholder="Ej: 36500.00">
+            </div>
+
+            <div class="form-group">
+                <label for="cod_banco">Código del banco destino</label>
+                <select id="cod_banco" name="cod_banco" required>
+                    <option value="">Seleccione un banco</option>
+                    <option value="0102">Banco de Venezuela</option>
+                    <option value="0105">Mercantil</option>
+                    <option value="0108">Provincial</option>
+                    <option value="0114">Bancaribe</option>
+                    <option value="0115">Exterior</option>
+                    <option value="0128">Banco Caroní</option>
+                    <option value="0134">Banesco</option>
+                    <option value="0137">Sofitasa</option>
+                    <option value="0138">Banplus</option>
+                    <option value="0151">BFC (Fondo Común)</option>
+                    <option value="0156">DelSur</option>
+                    <option value="0157">Banavih</option>
+                    <option value="0163">Tesoro</option>
+                    <option value="0166">Agrícola</option>
+                    <option value="0168">Bancrecer</option>
+                    <option value="0169">Mi Banco</option>
+                    <option value="0171">Activo</option>
+                    <option value="0172">Bancamiga</option>
+                    <option value="0174">Banplus</option>
+                    <option value="0175">Bicentenario</option>
+                    <option value="0177">BANFANB</option>
+                    <option value="0191">BNC (Nacional de Crédito)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cedula">Cédula/RIF</label>
+                <input type="text" id="cedula" name="cedula" required placeholder="Ej: V12345678">
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="text" id="telefono" name="telefono" required placeholder="Ej: 04121234567">
+            </div>
+
+            <button type="submit">Procesar Pago</button>
+        </form>
+        {% if message %}
+        <div class="message {{ 'success' if success else 'error' }}">
+            {{ message }}
+        </div>
+        {% endif %}
+        <div class="links">
+            <a href="/transfer">Transferir Dinero</a>
+            <a href="/reporte" style="margin-left: 20px;">Ver Reporte de Transacciones</a>
+            <a href="/admin" style="margin-left: 20px;">Panel Admin</a>
+            <a href="/user/logout" style="margin-left: 20px;">Cerrar Sesión</a>
+        </div>
+    </div>
+
+    <script>
+        // Add some futuristic effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
