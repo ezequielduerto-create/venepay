@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'dev_secret_change_me')  # use env var in production
+app.secret_key = os.environ.get('SECRET_KEY', 'aK5oI2_t_eccNVOJT3jfheuOv7873xyMmZ05j0FBU34')  # use env var in production
 
 # Inicializar la base de datos
 init_db()
